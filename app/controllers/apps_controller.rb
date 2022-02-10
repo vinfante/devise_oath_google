@@ -18,6 +18,9 @@ class AppsController < ApplicationController
 
   # GET /apps/1 or /apps/1.json
   def show
+    User.find_each do |user|
+      ReminderMailer.with(user: user).reminder_email.deliver_now
+    end
   end
 
   # GET /apps/new
