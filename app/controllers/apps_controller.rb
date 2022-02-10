@@ -6,6 +6,14 @@ class AppsController < ApplicationController
   # GET /apps or /apps.json
   def index
     @apps = App.all
+
+    respond_to do |format|
+      format.html
+      format.pdf do
+        render template: "apps/index.html.erb",
+          pdf: "Apps: #{@apps.count}"
+      end
+    end
   end
 
   # GET /apps/1 or /apps/1.json
