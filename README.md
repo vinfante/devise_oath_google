@@ -8,6 +8,8 @@ Things you may want to cover:
 * Ruby version
 
 * System dependencies
+    install webpacker (may need yaml and nodejs)
+      rails webpacker:install
 
 * Configuration
 
