@@ -5,7 +5,7 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
 
   def google_oauth2
     auth = request.env["omniauth.auth"]
-    p auth
+    puts auth
     # user = User.where(provider: auth["provider"], uid: auth["uid"])
     #         .first_or_initialize(email: auth["info"]["email"])
 
@@ -17,6 +17,10 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
     user.uid ||= auth["uid"]
     user.skip_password_validation = true
     user.save!
+
+    session_db = Session.where(user: user).first_or_initialize(token: auth['extra']['id_token'])
+    session_db.user = user
+    session_db.save
 
     # user.remember_me = true
     sign_in(:user, user)
