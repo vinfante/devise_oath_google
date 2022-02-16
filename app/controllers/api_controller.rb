@@ -8,20 +8,39 @@ class ApiController < ApplicationController
   end
 
   def init_vars
-    @token = params[:token]
+    @token = nil
+    bearer_pattern = /^Bearer /
+
+    authorization_header = request.headers["Authorization"]
+    if authorization_header && authorization_header.match(bearer_pattern)
+      @token = authorization_header.gsub(bearer_pattern, '')
+    end
+  end
+
+  def render_unauthorized
+    unauthorized_status_code = 401
+    render template: 'api/v1/apps/error.json.jbuilder', 
+          nothing: true, 
+          status: unauthorized_status_code, 
+          locals: { 
+            status: unauthorized_status_code, 
+            status_str: Rack::Utils::HTTP_STATUS_CODES[unauthorized_status_code]
+          }
   end
 
   def authenticated_user?
     session_db = Session.find_by_token(@token)
-    if session_db.nil?
-      render template: 'api/v1/apps/error.json.jbuilder', :nothing => true, :status => 401, locals: {status: 401}
+    if @token.nil? || session_db.nil?
+      render_unauthorized
     else
-      begin
-        # JWT.decode @token, hmac_secret, true, { algorithm: 'HS256' }
-        JWT.decode @token, nil, false
-      rescue JWT::ExpiredSignature
-        render template: :error, :nothing => true, :status => 401
-      end
+      
+        authenticator = Api::V1::ApiHelper::Authenticator.new(ENV['GOOGLE_CLIENT_ID'])
+
+        if !authenticator.valid_credentials?(token: @token)
+          p '--------VALIDATION ERROR-----------'
+          render_unauthorized
+        end
+
     end
   end
 end

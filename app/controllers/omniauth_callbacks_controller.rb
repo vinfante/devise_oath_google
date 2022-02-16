@@ -18,7 +18,14 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
     user.skip_password_validation = true
     user.save!
 
-    session_db = Session.where(user: user).first_or_initialize(token: auth['extra']['id_token'])
+    # session_db = Session.where(user: user).first_or_initialize(token: auth['extra']['id_token'])
+    session_db = Session.where(user: user).first
+    p session_db
+    if session_db.nil?
+      p '-----------------------session empty'
+      session_db = Session.new
+    end
+    session_db.token = auth['extra']['id_token']
     session_db.user = user
     session_db.save
 

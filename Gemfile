@@ -67,3 +67,4 @@ gem "wkhtmltopdf-binary", group: :development
 gem "wkhtmltopdf-heroku", group: :production
 
 gem 'jwt'
+gem 'google-id-token'
